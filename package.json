@@ -1,0 +1,23 @@
+{
+  "name": "vpnspeedteller",
+  "version": "1.0.0",
+  "description": "data server for vpnSpeedTeller",
+  "main": "vpnSpeedTellerServer.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/qianru-zhai/vpnspeedteller.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/qianru-zhai/vpnspeedteller/issues"
+  },
+  "homepage": "https://github.com/qianru-zhai/vpnspeedteller#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "lowdb": "^1.0.0"
+  }
+}
