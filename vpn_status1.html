@@ -30,18 +30,21 @@
 		xhr.onreadystatechange = function() {
 			if (xhr.readyState == 4 && xhr.status == 200) {
 				var json = JSON.parse(xhr.responseText);
-				var table = [['Region', 'Connection', 'Bandwidth']];
+				var table = [['Region', 'Connection', 'Speed Index', 'Octane', 'Infocus', 'QA Server', 'RnDs Lab']];
 				for(var key in json){
 				var val = parseFloat(json[key])
 					console.log('key in json is ' + key + ' value is ' + val)
-					var item = [key/*json[i]['Region']*/, key/*json[i]['Name']*/, val/*json[i]['Bandwidth']*/];
+					var item = [key, key, parseFloat(json[key].SpeedIndex),parseFloat(json[key].Octane_RT), parseFloat(json[key].MF_RT), parseFloat(json[key].Kalimanjaro_RT),parseFloat(json[key].RDP_RT)];
 					table.push(item);
 				};
 				console.log('table is ' + JSON.stringify(table))
-				data = google.visualization.arrayToDataTable(table);
+		var dataGeo = [];
+		for (i = 0; i < table.length; ++i)
+			dataGeo.push(table[i].slice(0, 3));
+      var data = google.visualization.arrayToDataTable(dataGeo);
       var options = {
         displayMode: 'markers',
-        colorAxis: {colors: ['red', 'yellow', 'green'], minValue: 0, maxValue: 20000},
+        colorAxis: {colors: ['green', 'yellow', 'orange', 'red'], minValue: 0, maxValue: 50},
 		sizeAxis: {minSize: 12, maxSize: 12, minValue: 1, maxValue: 1},
 		tooltip: {trigger: 'focus'}
       };
@@ -49,23 +52,25 @@
       var chart = new google.visualization.GeoChart(document.getElementById('chart_div'));
       chart.draw(data, options);
 	  
-		var srcData = table;
-		srcData.sort(function(a, b){return b[2] - a[2]});
+		var srcData = [];
+		for (i = 0; i < table.length; ++i)
+			srcData.push(table[i].slice());
+		srcData.sort(function(a, b){return a[2] - b[2]});
 		srcData[0][3] = ({ role: 'style' });
 		for(var d in srcData)
 		{
 			if (d != 0)
 			{
-				if(srcData[d][2] > 15000)
-					srcData[d][3] = 'color: #009f00';
-				else if(srcData[d][2] > 10000)
-					srcData[d][3] = 'color: #afbf00';
-				else if(srcData[d][2] > 5000)
-					srcData[d][3] = 'color: #df8700';
-				else if(srcData[d][2] > 0)
-					srcData[d][3] = 'color: #df0000';
-				else
+				if(srcData[d][2] >10000)
 					srcData[d][3] = 'color: #7f7f7f';
+				if(srcData[d][2] > 37)
+					srcData[d][3] = 'color: #df0000';
+				else if(srcData[d][2] > 25)
+					srcData[d][3] = 'color: #df6f00';
+				else if(srcData[d][2] > 12)
+					srcData[d][3] = 'color: #dfdf00';
+				else
+					srcData[d][3] = 'color: #009f00';
 			}
 		}
       var ccdata = google.visualization.arrayToDataTable(srcData);
@@ -87,6 +92,30 @@
       };
       var ccchart = new google.visualization.BarChart(document.getElementById('chart2_div'));
       ccchart.draw(ccview, options);
+	  
+      var srcDataDetail = [];
+        for (i = 0; i < table.length; ++i)
+        {
+            srcDataDetail.push(table[i].slice(1, 7));
+        }
+        srcDataDetail.sort(function(a, b){return a[1] - b[1]});
+        for (i = 0; i < srcDataDetail.length; ++i)
+        {
+            srcDataDetail[i].splice(1, 1);
+        }
+      var ccdataDetail = google.visualization.arrayToDataTable(srcDataDetail);
+      var ccviewDetail = new google.visualization.DataView(ccdataDetail);
+
+
+      var ccoptionsDetail = {
+        title: 'Details',
+        bar: 'horizontal',
+        width: 600,
+        height: 600,
+		colors: ['#1134a6', '#5097a4', '#8d4585', '#7570b3']
+      };
+      var ccchartDetail = new google.visualization.BarChart(document.getElementById('detail'));
+      ccchartDetail.draw(ccdataDetail, ccoptionsDetail);
 			}
 		}
 		xhr.send();
@@ -98,18 +127,17 @@
   </head>
   <body>
     <div id="main" style="width: 100%;"></div>
-    <div id="chart_div" style="width: 62%; height: 500px; float: left;"></div>
-    <div id="right" style="width: 38%; height: 500px; float: left;">
-		<div style="height: 10%;">
-		<div id="combo" style="margin: 30 auto;">
+    <div id="chart_div" style="width: 62%; float: left;"></div>
+    <div id="right" style="width: 38%; float: left;">
+		<div id="combo" style="margin: 10 auto;">
 		VPN status of
 			<select id ="ddl" name="ddl" onchange="run(this.value);">
 			  <option value='Shanghai'>Shanghai</option>
 			  <option value='Cluj'>Cluj</option>
 			</select>
 		</div>
-		</div>
-		<div id="chart2_div" style="height: 90%; float: top;"></div>
+		<div id="chart2_div" style="height: 25%; float: top;"></div>
+		<div id="detail" style="height = 40%; float: top"></div>
 	</div>
   </body>
 </html>
