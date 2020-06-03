@@ -112,6 +112,7 @@ app.get('/clear', function(request, response) {
 		dbOfShanghai.unset(key).write()
 		dbOfCluj.unset(key).write()
 	}
+	console.log('clear data')
 	response.writeHead(200, {'Content-Type': 'text/html'})
 	response.end('clear!\n');
 	
@@ -123,34 +124,40 @@ app.get('/data', function(request, response) {
 	if(request.query.site.toLowerCase() == 'cluj')
 		db = dbOfCluj
 	
-	var octaneArr = {}
-	var mfArr = {}
-	var kalimanjaroArr = {}
-	var rdpArr = {}
+	var overall = {"Singapore":{}, "China": {}, "Houston US": {}, "India":{}, "UK":{}}
 	for (let key in VPN){
 		/*octane*/
 		var octanetime = db.get(TEST_TARGET.Octane_RT).filter({vpn: VPN[key]}).orderBy('DateTime', 'desc').take(1).value()
 		if(octanetime[0] != undefined)
-			octaneArr[key] = octanetime[0].responseTime
+			overall[VPN[key]][TEST_TARGET.Octane_RT] = octanetime[0].responseTime
 
 		/*mf main page*/
 		var mftime = db.get(TEST_TARGET.MF_RT).filter({vpn: VPN[key]}).orderBy('DateTime', 'desc').take(1).value()
 		if(mftime[0] != undefined)
-			mfArr[key] = mftime[0].responseTime
+			overall[VPN[key]][TEST_TARGET.MF_RT] = mftime[0].responseTime
 
 		
 		/*kalimanjaro page*/
 		var kalimanjarotime = db.get(TEST_TARGET.Kalimanjaro_RT).filter({vpn: VPN[key]}).orderBy('DateTime', 'desc').take(1).value()
 		if(kalimanjarotime[0] != undefined)
-			kalimanjaroArr[key] = kalimanjarotime[0].responseTime
+			overall[VPN[key]][TEST_TARGET.Kalimanjaro_RT] = kalimanjarotime[0].responseTime
 		
 		/*rdp*/
 		var rdptime = db.get(TEST_TARGET.RDP_RT).filter({vpn: VPN[key]}).orderBy('DateTime', 'desc').take(1).value()
 		if(rdptime[0] != undefined)
-			rdpArr[key] = rdptime[0].responseTime
+			overall[VPN[key]][TEST_TARGET.RDP_RT] = rdptime[0].responseTime
+		
+		overall[VPN[key]]["SpeedIndex"] = 0.5*octanetime[0].responseTime + 0.1*mftime[0].responseTime + 0.2*kalimanjarotime[0].responseTime +0.2*rdptime[0].responseTime
+		
 	}
-	console.log('temporarily return rdp data for test ' + JSON.stringify(rdpArr))
-	response.status(200).json(rdpArr)
+	
+	/*overall[TEST_TARGET.Octane_RT] = octaneArr
+	overall[TEST_TARGET.MF_RT] = mfArr
+	overall[TEST_TARGET.Kalimanjaro_RT] = kalimanjaroArr
+	overall[TEST_TARGET.RDP_RT] = rdpArr
+	overall["Weights_RT"] = weightsArr*/
+	console.log('return all data for test ' + JSON.stringify(overall))
+	response.status(200).json(overall)
 	
 })
 
