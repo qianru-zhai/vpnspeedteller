@@ -1,0 +1,115 @@
+<html>
+  <head>
+    <script type='text/javascript' src='https://www.gstatic.com/charts/loader.js'></script>
+    <script type='text/javascript'>
+        google.charts.load('current', {
+        'packages': ['geochart', 'corechart'],
+        'mapsApiKey': 'AIzaSyBT_3a2cdGCilEKsznvm_rP2W8UdYobRnQ'
+     });
+	 
+	 function run(site){
+     google.charts.setOnLoadCallback(drawMarkersMap);
+
+      function drawMarkersMap() {
+      /*var data = google.visualization.arrayToDataTable([
+        ['Region', 'Connection', 'Bandwidth'],
+        ['Singapore', 'Singapore', 14600],
+        ['China', 'China', 20300],
+        ['Houston', 'Houston', 3400],
+        ['UK', 'UK', 907],
+        [ 'Greek', 'B EMEA', 447],
+        [ 'Japan', 'B APJ', 11025],
+        [ 'NY', 'B AMS', 366],
+        ['India', 'India', 4000]
+      ]);*/
+	  var data;
+	  
+	  var xhr = new XMLHttpRequest();
+		var open_str = '/data?site='+site//"http://10.5.29.200:9001/VSService.svc/GetConnectionList/Site=" + site;
+		xhr.open("GET", open_str, true);
+		xhr.onreadystatechange = function() {
+			if (xhr.readyState == 4 && xhr.status == 200) {
+				var json = JSON.parse(xhr.responseText);
+				var table = [['Region', 'Connection', 'Bandwidth']];
+				for(var key in json){
+				var val = parseFloat(json[key])
+					console.log('key in json is ' + key + ' value is ' + val)
+					var item = [key/*json[i]['Region']*/, key/*json[i]['Name']*/, val/*json[i]['Bandwidth']*/];
+					table.push(item);
+				};
+				console.log('table is ' + JSON.stringify(table))
+				data = google.visualization.arrayToDataTable(table);
+      var options = {
+        displayMode: 'markers',
+        colorAxis: {colors: ['red', 'yellow', 'green'], minValue: 0, maxValue: 20000},
+		sizeAxis: {minSize: 12, maxSize: 12, minValue: 1, maxValue: 1},
+		tooltip: {trigger: 'focus'}
+      };
+
+      var chart = new google.visualization.GeoChart(document.getElementById('chart_div'));
+      chart.draw(data, options);
+	  
+		var srcData = table;
+		srcData.sort(function(a, b){return b[2] - a[2]});
+		srcData[0][3] = ({ role: 'style' });
+		for(var d in srcData)
+		{
+			if (d != 0)
+			{
+				if(srcData[d][2] > 15000)
+					srcData[d][3] = 'color: #009f00';
+				else if(srcData[d][2] > 10000)
+					srcData[d][3] = 'color: #afbf00';
+				else if(srcData[d][2] > 5000)
+					srcData[d][3] = 'color: #df8700';
+				else if(srcData[d][2] > 0)
+					srcData[d][3] = 'color: #df0000';
+				else
+					srcData[d][3] = 'color: #7f7f7f';
+			}
+		}
+      var ccdata = google.visualization.arrayToDataTable(srcData);
+      var ccview = new google.visualization.DataView(ccdata);
+      ccview.setColumns([1, 2,
+                       { calc: 'stringify',
+                         sourceColumn: 2,
+                         type: 'string',
+                         role: 'annotation' },
+						 3]);
+
+      var ccoptions = {
+        title: 'ResponseTime',
+        width: 600,
+        height: 400,
+        bar: {groupWidth: '95%'},
+        legend: { position: 'none' },
+		//hAxis:{minorGridlines: { color: 'transparent'}},
+      };
+      var ccchart = new google.visualization.BarChart(document.getElementById('chart2_div'));
+      ccchart.draw(ccview, options);
+			}
+		}
+		xhr.send();
+		
+    }
+	};
+	 run('Shanghai');
+    </script>
+  </head>
+  <body>
+    <div id="main" style="width: 100%;"></div>
+    <div id="chart_div" style="width: 62%; height: 500px; float: left;"></div>
+    <div id="right" style="width: 38%; height: 500px; float: left;">
+		<div style="height: 10%;">
+		<div id="combo" style="margin: 30 auto;">
+		VPN status of
+			<select id ="ddl" name="ddl" onchange="run(this.value);">
+			  <option value='Shanghai'>Shanghai</option>
+			  <option value='Cluj'>Cluj</option>
+			</select>
+		</div>
+		</div>
+		<div id="chart2_div" style="height: 90%; float: top;"></div>
+	</div>
+  </body>
+</html>
