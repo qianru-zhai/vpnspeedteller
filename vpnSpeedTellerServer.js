@@ -26,10 +26,12 @@ const VPN = {
    UK: "UK",  
 };
 
-//var bodyParser = require('body-parser')
-
-app.use(express.json());   
+app.use(express.json());
+app.use(express.static(__dirname + '/'));   
 app.use(express.urlencoded({ extended: true }))
+app.engine('html', require('ejs').renderFile);
+app.set('view engine', 'html');
+app.set('views', __dirname);
 
 function filldb(db, testSite, vpn, dateTime, resTime) {
 	if(db.has(testSite) == false)
@@ -102,11 +104,29 @@ app.post('/', function(request, response) {
 
 })
 app.get('/', function(request, response) {
+	response.render('vpn_status1.html',null/*{email:data.email,password:data.password}*/);
+	
+})
+app.get('/clear', function(request, response) {
+	for (let key in TEST_TARGET){
+		dbOfShanghai.unset(key).write()
+		dbOfCluj.unset(key).write()
+	}
+	response.writeHead(200, {'Content-Type': 'text/html'})
+	response.end('clear!\n');
+	
+})
+
+app.get('/data', function(request, response) {
+	console.log('request.query ' + JSON.stringify(request.query))
+	var db = dbOfShanghai;
+	if(request.query.site.toLowerCase() == 'cluj')
+		db = dbOfCluj
+	
 	var octaneArr = {}
 	var mfArr = {}
 	var kalimanjaroArr = {}
 	var rdpArr = {}
-	var db = dbOfShanghai
 	for (let key in VPN){
 		/*octane*/
 		var octanetime = db.get(TEST_TARGET.Octane_RT).filter({vpn: VPN[key]}).orderBy('DateTime', 'desc').take(1).value()
@@ -117,6 +137,7 @@ app.get('/', function(request, response) {
 		var mftime = db.get(TEST_TARGET.MF_RT).filter({vpn: VPN[key]}).orderBy('DateTime', 'desc').take(1).value()
 		if(mftime[0] != undefined)
 			mfArr[key] = mftime[0].responseTime
+
 		
 		/*kalimanjaro page*/
 		var kalimanjarotime = db.get(TEST_TARGET.Kalimanjaro_RT).filter({vpn: VPN[key]}).orderBy('DateTime', 'desc').take(1).value()
@@ -128,13 +149,9 @@ app.get('/', function(request, response) {
 		if(rdptime[0] != undefined)
 			rdpArr[key] = rdptime[0].responseTime
 	}
-
-	/*console.log('octane data ' + JSON.stringify(octaneArr))
-	console.log('mf main page data ' + JSON.stringify(mfArr))
-	console.log('kalimanjaro data ' + JSON.stringify(kalimanjaroArr))
-	console.log('rdp data ' + JSON.stringify(rdpArr))*/
-	response.writeHead(200, {'Content-Type': 'text/html'})
-	response.end('')
+	console.log('temporarily return rdp data for test ' + JSON.stringify(rdpArr))
+	response.status(200).json(rdpArr)
 	
 })
+
 app.listen(5055)
