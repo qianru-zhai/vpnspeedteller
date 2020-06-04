@@ -54,7 +54,7 @@ function filldb(db, testSite, vpn, dateTime, resTime) {
 app.post('/', function(request, response) {
 	/*push data to db*/
 	console.log(JSON.stringify(request.body))
-	var site = request.body.site
+	var site = request.body.Site
 
 	var db;
 	if(site.toLowerCase() == "shanghai") {
@@ -66,16 +66,16 @@ app.post('/', function(request, response) {
 	
 	var responseTime = request.body.ResponseTime
 	if(responseTime.Octane_RT != undefined) {
-		filldb(db, TEST_TARGET.Octane_RT, request.body.vpn, request.body.DateTime, responseTime.Octane_RT)
+		filldb(db, TEST_TARGET.Octane_RT, request.body.GateWay, request.body.DateTime, responseTime.Octane_RT)
 	}
 	if(responseTime.MF_RT != undefined) {
-		filldb(db, TEST_TARGET.MF_RT, request.body.vpn, request.body.DateTime, responseTime.MF_RT)
+		filldb(db, TEST_TARGET.MF_RT, request.body.GateWay, request.body.DateTime, responseTime.MF_RT)
 	}
 	if(responseTime.Kalimanjaro_RT != undefined) {
-		filldb(db, TEST_TARGET.Kalimanjaro_RT, request.body.vpn, request.body.DateTime, responseTime.Kalimanjaro_RT)
+		filldb(db, TEST_TARGET.Kalimanjaro_RT, request.body.GateWay, request.body.DateTime, responseTime.Kalimanjaro_RT)
 	}
 	if(responseTime.RDP_RT != undefined) {
-		filldb(db, TEST_TARGET.RDP_RT, request.body.vpn, request.body.DateTime, responseTime.RDP_RT)
+		filldb(db, TEST_TARGET.RDP_RT, request.body.GateWay, request.body.DateTime, responseTime.RDP_RT)
 	}
 	response.writeHead(200, {'Content-Type': 'text/html'})
 	response.end('post data done!\n');
@@ -138,7 +138,7 @@ app.get('/data', function(request, response) {
 		if(mftime[0] != undefined)
 			overall[VPN[key]][TEST_TARGET.MF_RT] = mftime[0].responseTime
 		else
-			overall[VPN[key]][TEST_TARGET.Octane_RT] = TIMEOUT
+			overall[VPN[key]][TEST_TARGET.MF_RT] = TIMEOUT
 
 		
 		/*kalimanjaro page*/
@@ -146,16 +146,16 @@ app.get('/data', function(request, response) {
 		if(kalimanjarotime[0] != undefined)
 			overall[VPN[key]][TEST_TARGET.Kalimanjaro_RT] = kalimanjarotime[0].responseTime
 		else
-			overall[VPN[key]][TEST_TARGET.Octane_RT] = TIMEOUT
+			overall[VPN[key]][TEST_TARGET.Kalimanjaro_RT] = TIMEOUT
 		
 		/*rdp*/
 		var rdptime = db.get(TEST_TARGET.RDP_RT).filter({vpn: VPN[key]}).orderBy('DateTime', 'desc').take(1).value()
 		if(rdptime[0] != undefined)
 			overall[VPN[key]][TEST_TARGET.RDP_RT] = rdptime[0].responseTime
 		else
-			overall[VPN[key]][TEST_TARGET.Octane_RT] = TIMEOUT
+			overall[VPN[key]][TEST_TARGET.RDP_RT] = TIMEOUT
 		
-		overall[VPN[key]]["SpeedIndex"] = 0.5*octanetime[0].responseTime + 0.1*mftime[0].responseTime + 0.2*kalimanjarotime[0].responseTime +0.2*rdptime[0].responseTime
+		overall[VPN[key]]["SpeedIndex"] = 0.5*overall[VPN[key]][TEST_TARGET.Octane_RT] + 0.1*overall[VPN[key]][TEST_TARGET.MF_RT] + 0.2*overall[VPN[key]][TEST_TARGET.Kalimanjaro_RT] +0.2*overall[VPN[key]][TEST_TARGET.RDP_RT]
 		
 	}
 	
