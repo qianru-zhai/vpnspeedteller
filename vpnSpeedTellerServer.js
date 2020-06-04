@@ -11,6 +11,7 @@ var express = require('express')
 var fs = require('fs')
 var app = express()
 const MAX_RECORDS = 10
+const TIMEOUT = 120
 const TEST_TARGET = {
    Octane_RT: "Octane_RT",
    MF_RT: "MF_RT",
@@ -52,7 +53,6 @@ function filldb(db, testSite, vpn, dateTime, resTime) {
 }
 app.post('/', function(request, response) {
 	/*push data to db*/
-	console.log('post requets ' + request.body)
 	console.log(JSON.stringify(request.body))
 	var site = request.body.site
 
@@ -130,22 +130,30 @@ app.get('/data', function(request, response) {
 		var octanetime = db.get(TEST_TARGET.Octane_RT).filter({vpn: VPN[key]}).orderBy('DateTime', 'desc').take(1).value()
 		if(octanetime[0] != undefined)
 			overall[VPN[key]][TEST_TARGET.Octane_RT] = octanetime[0].responseTime
+		else
+			overall[VPN[key]][TEST_TARGET.Octane_RT] = TIMEOUT
 
 		/*mf main page*/
 		var mftime = db.get(TEST_TARGET.MF_RT).filter({vpn: VPN[key]}).orderBy('DateTime', 'desc').take(1).value()
 		if(mftime[0] != undefined)
 			overall[VPN[key]][TEST_TARGET.MF_RT] = mftime[0].responseTime
+		else
+			overall[VPN[key]][TEST_TARGET.Octane_RT] = TIMEOUT
 
 		
 		/*kalimanjaro page*/
 		var kalimanjarotime = db.get(TEST_TARGET.Kalimanjaro_RT).filter({vpn: VPN[key]}).orderBy('DateTime', 'desc').take(1).value()
 		if(kalimanjarotime[0] != undefined)
 			overall[VPN[key]][TEST_TARGET.Kalimanjaro_RT] = kalimanjarotime[0].responseTime
+		else
+			overall[VPN[key]][TEST_TARGET.Octane_RT] = TIMEOUT
 		
 		/*rdp*/
 		var rdptime = db.get(TEST_TARGET.RDP_RT).filter({vpn: VPN[key]}).orderBy('DateTime', 'desc').take(1).value()
 		if(rdptime[0] != undefined)
 			overall[VPN[key]][TEST_TARGET.RDP_RT] = rdptime[0].responseTime
+		else
+			overall[VPN[key]][TEST_TARGET.Octane_RT] = TIMEOUT
 		
 		overall[VPN[key]]["SpeedIndex"] = 0.5*octanetime[0].responseTime + 0.1*mftime[0].responseTime + 0.2*kalimanjarotime[0].responseTime +0.2*rdptime[0].responseTime
 		
@@ -161,4 +169,4 @@ app.get('/data', function(request, response) {
 	
 })
 
-app.listen(process.env.PORT ||5055)
+app.listen(5055)
