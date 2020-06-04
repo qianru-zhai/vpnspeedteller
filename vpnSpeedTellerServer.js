@@ -8,6 +8,7 @@ const adapterCluj = new FileSync('Cluj.json')
 const dbOfCluj = low(adapterCluj)
 
 var express = require('express')
+var zip = require('express-zip')
 var fs = require('fs')
 var app = express()
 const MAX_RECORDS = 10
@@ -116,6 +117,13 @@ app.get('/clear', function(request, response) {
 	response.writeHead(200, {'Content-Type': 'text/html'})
 	response.end('clear!\n');
 	
+})
+
+app.get('/download', function(request, response) {
+	response.zip([
+    { path: `${__dirname}/Shanghai.json`, name: 'Shanghai.json' },
+    { path: `${__dirname}/Cluj.json`, name: 'Cluj.json' }
+  ]);
 })
 
 app.get('/data', function(request, response) {
