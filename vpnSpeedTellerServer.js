@@ -169,4 +169,4 @@ app.get('/data', function(request, response) {
 	
 })
 
-app.listen(5055)
+app.listen(process.env.PORT ||5055)
