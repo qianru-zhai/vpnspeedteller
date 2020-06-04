@@ -1,5 +1,7 @@
 <html>
   <head>
+	<link rel="stylesheet" type="text/css" class="ui" href="./Dropdown _ Semantic UI_files/semantic.min.css">
+	
     <script type='text/javascript' src='https://www.gstatic.com/charts/loader.js'></script>
     <script type='text/javascript'>
         google.charts.load('current', {
@@ -44,7 +46,7 @@
       var data = google.visualization.arrayToDataTable(dataGeo);
       var options = {
         displayMode: 'markers',
-        colorAxis: {colors: ['green', 'yellow', 'orange', 'red'], minValue: 0, maxValue: 50},
+        colorAxis: {colors: ['green', 'lightgreen', 'yellow', 'orange', 'red'], minValue: 0, maxValue: 50},
 		sizeAxis: {minSize: 12, maxSize: 12, minValue: 1, maxValue: 1},
 		tooltip: {trigger: 'focus'}
       };
@@ -54,7 +56,7 @@
 	  
 		var srcData = [];
 		for (i = 0; i < table.length; ++i)
-			srcData.push(table[i].slice());
+			srcData.push(table[i].slice(0, 3));
 		srcData.sort(function(a, b){return a[2] - b[2]});
 		srcData[0][3] = ({ role: 'style' });
 		for(var d in srcData)
@@ -62,15 +64,17 @@
 			if (d != 0)
 			{
 				if(srcData[d][2] >10000)
-					srcData[d][3] = 'color: #7f7f7f';
-				if(srcData[d][2] > 37)
-					srcData[d][3] = 'color: #df0000';
+					srcData[d][3] = 'stroke-color: #5f5f5f; stroke-width: 1; fill-color: #7f7f7f';
+				else if(srcData[d][2] > 50)
+					srcData[d][3] = 'stroke-color: #af0000; stroke-width: 1; fill-color: #ef0000';
+				else if(srcData[d][2] > 37)
+					srcData[d][3] = 'stroke-color: #af4f00; stroke-width: 1; fill-color: #ff7f00';
 				else if(srcData[d][2] > 25)
-					srcData[d][3] = 'color: #df6f00';
+					srcData[d][3] = 'stroke-color: #a79f00; stroke-width: 1; fill-color: #f7ef00';
 				else if(srcData[d][2] > 12)
-					srcData[d][3] = 'color: #dfdf00';
+					srcData[d][3] = 'stroke-color: #4f9f00; stroke-width: 1; fill-color: #7fef00';
 				else
-					srcData[d][3] = 'color: #009f00';
+					srcData[d][3] = 'stroke-color: #2f6f00; stroke-width: 1; fill-color: #3f9f00';
 			}
 		}
       var ccdata = google.visualization.arrayToDataTable(srcData);
@@ -110,9 +114,9 @@
       var ccoptionsDetail = {
         title: 'Details',
         bar: 'horizontal',
-        width: 600,
-        height: 600,
-		colors: ['#1134a6', '#5097a4', '#8d4585', '#7570b3']
+        width: 700,
+        height: 450,
+		colors: ['#00a0a0', '#87ceeb', '#db7093', '#7570b3']
       };
       var ccchartDetail = new google.visualization.BarChart(document.getElementById('detail'));
       ccchartDetail.draw(ccdataDetail, ccoptionsDetail);
@@ -123,21 +127,56 @@
     }
 	};
 	 run('Shanghai');
+	 
+	function hideDetails() {
+	  var checkBox = document.getElementById("hidedetails");
+	  var detail = document.getElementById("detail");
+
+	  if (checkBox.checked == true){
+		detail.style.visibility = "visible";
+	  } else {
+		detail.style.visibility = "hidden";
+	  }
+	}
     </script>
   </head>
   <body>
     <div id="main" style="width: 100%;"></div>
-    <div id="chart_div" style="width: 62%; float: left;"></div>
+	<div style="height: 2%; float: top;"></div>
+	<div style="width: 62%; float: left;">
+		<div style="height: 5%; float: top;"></div>
+		<div id="chart_div" style="float: top;"></div>
+	</div>
     <div id="right" style="width: 38%; float: left;">
-		<div id="combo" style="margin: 10 auto;">
-		VPN status of
-			<select id ="ddl" name="ddl" onchange="run(this.value);">
-			  <option value='Shanghai'>Shanghai</option>
-			  <option value='Cluj'>Cluj</option>
-			</select>
+		<div style="height: 6%; float: top;">
+			<div style="width: 20%;">
+			</div>
+			<div id="combo" style="width: 90%; margin: 0 auto;">
+				VPN Speed Index at
+				<select id ="ddl" name="ddl" onchange="run(this.value);" class="ui dropdown">
+				  <option value='Shanghai'>Shanghai</option>
+				  <option value='Cluj'>Cluj</option>
+				  <option value='Yehud'>Yehud</option>
+				  <option value='London'>London</option>
+				  <option value='Singapore'>Singapore</option>
+				  <option value='Cambridge'>Cambridge</option>
+				  <option value='Bangalore'>Bangalore</option>
+				</select>
+			</div>
 		</div>
-		<div id="chart2_div" style="height: 25%; float: top;"></div>
-		<div id="detail" style="height = 40%; float: top"></div>
+		<div id="chart2_div" style="height: 35%; float: top;"></div>
+		<div style="height: 3%; float: top;"></div>
+		<div>
+			<div style="width: 5%;">
+			</div>
+			<div style="width: 95%; margin: 0 auto;">
+				<div class="ui toggle checkbox" onclick="hideDetails()">
+				  <input type="checkbox" id="hidedetails">
+				  <label>Show Details</label>
+				</div>
+			</div>
+		</div>
+		<div id="detail" style="height: 40%; float: top; visibility: hidden"></div>
 	</div>
   </body>
 </html>
