@@ -104,6 +104,38 @@ app.post('/', function(request, response) {
 	}*/
 
 })
+
+app.post('/upload', function(request, response) {
+	console.log('upload... ' + request.query.site)
+	var db = dbOfShanghai;
+	if(request.query.site.toLowerCase() == 'cluj')
+		db = dbOfCluj
+	
+	var octane = request.body.Octane_RT
+	for(var i = 0; i < octane.length; i++){
+		filldb(db, TEST_TARGET.Octane_RT, octane[i].vpn, octane[i].DateTime, octane[i].responseTime)
+	}
+	
+	var mf = request.body.MF_RT
+	for(var i = 0; i < mf.length; i++){
+		filldb(db, TEST_TARGET.MF_RT, mf[i].vpn, mf[i].DateTime, mf[i].responseTime)
+	}
+	
+	var kalimanjaro = request.body.Kalimanjaro_RT
+	for(var i = 0; i < kalimanjaro.length; i++){
+		filldb(db, TEST_TARGET.Kalimanjaro_RT, kalimanjaro[i].vpn, kalimanjaro[i].DateTime, kalimanjaro[i].responseTime)
+	}
+	
+	var rdp = request.body.RDP_RT
+	for(var i = 0; i < rdp.length; i++){
+		filldb(db, TEST_TARGET.RDP_RT, rdp[i].vpn, rdp[i].DateTime, rdp[i].responseTime)
+	}
+	
+	response.writeHead(200, {'Content-Type': 'text/html'})
+	response.end('upload done!\n');
+	
+})
+
 app.get('/', function(request, response) {
 	response.render('vpn_status1.html',null/*{email:data.email,password:data.password}*/);
 	
