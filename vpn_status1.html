@@ -32,7 +32,8 @@
 		xhr.onreadystatechange = function() {
 			if (xhr.readyState == 4 && xhr.status == 200) {
 				var json = JSON.parse(xhr.responseText);
-				var table = [['Region', 'Connection', 'Speed Index', 'Octane', 'Infocus', 'QA Server', 'RnDs Lab']];
+				var table = [['Region', 'Connection', 'Speed Index', 'Octane', 'Infocus', 'QA Server', 'RnDs Lab'],
+				['', 'In office',0.5*25.934+0.1*13.293+0.2*3.442+0.2*9.645,25.934,13.293,3.442,9.645]];
 				for(var key in json){
 				var val = parseFloat(json[key])
 					console.log('key in json is ' + key + ' value is ' + val)
